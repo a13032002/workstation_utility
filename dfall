@@ -1,0 +1,31 @@
+#!/usr/bin/python
+from subprocess import Popen, PIPE
+import sys
+
+POSTFIX = '.csie.ntu.edu.tw'
+
+def add (a):
+    return str(a[0]) + str(a[1])
+
+hosts = [h for h in map(add, zip(map(add, zip(['linux'] * 20,  range(1, 21))), [POSTFIX] * 20))]
+
+
+
+def main(argv):
+    if len(argv) != 1 + 0:
+        print >> sys.stderr, 'Usage : %s' % (argv[0], )
+        return -1
+
+    command = 'df -h /tmp2'
+    for idx, host in enumerate(hosts[:-1]):
+        hostname = host.split('.')[0]
+        ssh = Popen("ssh %s -t '%s'" % (host, command), shell=True, stdout=PIPE, stderr=PIPE)
+        stdout, stderr = ssh.communicate()
+        lines = stdout.split('\n')
+        if idx == 0:
+            print "Host\t", '\t'.join([l for l in lines[0].split(' ') if len(l) > 0])
+        print hostname + "\t", '\t'.join([l for l in lines[1].split(' ') if len(l) > 0])
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))

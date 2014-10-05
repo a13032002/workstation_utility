@@ -1,0 +1,26 @@
+#!/usr/bin/python
+from subprocess import Popen, PIPE
+import sys
+
+POSTFIX = '.csie.ntu.edu.tw'
+
+def add (a):
+    return str(a[0]) + str(a[1])
+
+hosts = [h for h in map(add, zip(map(add, zip(['linux'] * 20,  range(1, 21))), [POSTFIX] * 20))]
+
+
+
+def main(argv):
+    command = ' '.join(sys.argv[1 : len(sys.argv)])
+    for host in hosts[:-1]:
+        ssh = Popen("ssh %s -t '%s'" % (host, command), shell=True, stdout=PIPE)
+        stdout, stderr = ssh.communicate()
+        print host, "says:"
+        if stdout is not None: print stdout
+        if stderr is not None: print stderr
+        print 
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))
